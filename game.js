@@ -8,6 +8,7 @@ let standards = []; // List of item2 (standards)
 let usedStandards = []; // Track standards currently in use by balloons
 let availableStandards = []; // Pool of standards not currently used
 let targetProduct; // Current target product (item1)
+let targetAvailable = false; // Flag to check if target product is available
 let targetImage; // Image of the target product (item1)
 let itemImages = {}; // Loaded images for all items
 let balloonSize;
@@ -26,6 +27,7 @@ let soundWrong, soundPop, soundBackground; // Sound effects
 let gameState = "menu"; // Options: "menu", "playing", "gameOver"
 let bannerImage, bannerImagephone; // Image for the game banner
 let buttonSize, margin;
+let soundStarted = false;
 
 function preload() {
   // Load the main menu banner image
@@ -87,8 +89,7 @@ function setup() {
     let frame = popSpriteSheet.get(x, 0, frameWidth, frameHeight); // Crop the frame from the sprite sheet
     popFrames.push(frame); // Store each frame in the array
   }
-  soundBackground.loop(); // Loop background music
-  soundBackground.setVolume(1); // Set volume to 100%
+  
   pickNewTarget(); // Select initial target product
   spawnBalloons(); // Create balloons
   pixelDensity(1.5); // For performance
@@ -395,6 +396,7 @@ function pickNewTarget() {
   targetProduct = newTargetProduct;
   targetImage = itemImages[targetProduct];
   lastTargetProduct = targetProduct;
+  targetAvailable = true;
 
   fadeAlpha = 0;
   fadingIn = true;
@@ -434,7 +436,11 @@ function pickAndRemoveStandard() {
 function touchStarted() {
   if (gameState === "menu") {
     gameState = "playing";
-    soundBackground.play();
+    if (!soundStarted) { // Start sound only once
+      soundBackground.loop();
+      soundBackground.setVolume(1);
+      soundStarted = true;
+    }
     pickNewTarget();
     spawnBalloons();
   } 
@@ -478,7 +484,11 @@ function touchStarted() {
   }
   else if (gameState === "gameOver") {
     gameState = "menu";
+    //reset score and health
+    health = 4;
+    points = 0;
     soundBackground.stop(); // Stop background music
+    soundStarted = false;
   }
 }
 
@@ -486,7 +496,11 @@ function touchStarted() {
 function mousePressed() {
   if (gameState === "menu") {
     gameState = "playing";
-    soundBackground.play();
+    if (!soundStarted) { // Start sound only once
+      soundBackground.loop();
+      soundBackground.setVolume(1);
+      soundStarted = true;
+    }
     pickNewTarget();
     spawnBalloons();
   } 
@@ -530,7 +544,11 @@ function mousePressed() {
   }
   else if (gameState === "gameOver") {
     gameState = "menu";
+    //reset score and health
+    health = 4;
+    points = 0;
     soundBackground.stop(); // Stop background music
+    soundStarted = false;
   }
 }
 
@@ -544,41 +562,44 @@ function popAllBalloons() {
 
 
 function handleInput(x, y) {
-  let hit = false;
-  let correctBalloonClicked = false;
+  if(targetAvailable){
+    let hit = false;
+    let correctBalloonClicked = false;
 
-  for (let i = balloons.length - 1; i >= 0; i--) {
-    let balloon = balloons[i];
-    if (dist(x, y, balloon.x, balloon.y) < clickRadius) {
-      hit = true;
+    for (let i = balloons.length - 1; i >= 0; i--) {
+      let balloon = balloons[i];
+      if (dist(x, y, balloon.x, balloon.y) < clickRadius) {
+        hit = true;
 
-      // Check if the balloon clicked is the correct one
-      if (relationships[targetProduct] === balloon.standard) {
-        correctBalloonClicked = true;
-        points += 10; // Award points for correct balloon
-        soundPop.play(); // Play pop sound
-      } else {
-        points -= 5; // Penalize for wrong balloon
-        health--;
-        soundWrong.play(); // Play wrong sound
+        // Check if the balloon clicked is the correct one
+        if (relationships[targetProduct] === balloon.standard) {
+          correctBalloonClicked = true;
+          points += 10; // Award points for correct balloon
+          soundPop.play(); // Play pop sound
+        } else {
+          points -= 5; // Penalize for wrong balloon
+          health--;
+          soundWrong.play(); // Play wrong sound
+        }
+
+        // Mark the balloon as clicked to trigger the pop animation
+        balloon.clicked = true;
+
+        // If the correct balloon was clicked, pop all balloons display Good Job and then wait 1 sec then pick new target and spawn balloons
+        if (correctBalloonClicked) {
+          targetAvailable = false;
+          popAllBalloons();
+          setTimeout(() => {
+            pickNewTarget();
+            spawnBalloons();
+          }, 1000);
+        } else {
+          // If the wrong balloon was clicked, replace the popped balloon
+          replaceBalloon(i);
+        }
+
+        break;
       }
-
-      // Mark the balloon as clicked to trigger the pop animation
-      balloon.clicked = true;
-
-      // If the correct balloon was clicked, pop all balloons display Good Job and then wait 1 sec then pick new target and spawn balloons
-      if (correctBalloonClicked) {
-        popAllBalloons();
-        setTimeout(() => {
-          pickNewTarget();
-          spawnBalloons();
-        }, 1000);
-      } else {
-        // If the wrong balloon was clicked, replace the popped balloon
-        replaceBalloon(i);
-      }
-
-      break;
     }
   }
 }
