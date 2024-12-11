@@ -33,6 +33,7 @@ function preload() {
   // Load sound effects
   soundWrong = loadSound('assets/wrong.wav');
   soundPop = loadSound('assets/pop.wav');
+  soundPop.setVolume(0.3);
   soundBackground = loadSound('assets/background.mp3');
   bislogo = loadImage('assets/default.png');
   
