@@ -24,20 +24,17 @@ let frameCounter = 0; // Counter to control frame updates
 let framesPerUpdate = 10; // Number of frames to wait before changing the animation frame
 let sampleSize; // Number of rows to randomly select from the CSV
 let soundWrong, soundPop, soundBackground; // Sound effects
-let gameState = "menu"; // Options: "menu", "playing", "gameOver"
-let bannerImage, bannerImagephone; // Image for the game banner
+let gameState = "menu"; // Options: "menu", "playing", "gameOver", "paused"
 let buttonSize, margin;
 let soundStarted = false;
+let bislogo;
 
 function preload() {
-  // Load the main menu banner image
-  bannerImage = loadImage('assets/banner.png'); // Your custom main menu art
-  bannerImagephone = loadImage('assets/banner_phone.png'); // Your custom main menu art
-  
   // Load sound effects
   soundWrong = loadSound('assets/wrong.wav');
   soundPop = loadSound('assets/pop.wav');
   soundBackground = loadSound('assets/background.mp3');
+  bislogo = loadImage('assets/default.png');
   
   // Load CSV file
   let data = loadTable("assets/data.csv", "csv", "header", () => {
@@ -142,25 +139,53 @@ function drawCrosshair() {
 
 
 function drawMainMenu() {
-  if (targetImage && screen.width > 600){
-    background(0);
-    imageMode(CENTER);
-    image(bannerImage, width / 2, height / 2, width, height);
-
-    textSize(40);
-    fill(0,172,255);
+  if (screen.width > 600){
+    //draw the main menu with logo on top left and start button on the center of the screen and game name above the button without image
     textAlign(CENTER, CENTER);
-    text("Click anywhere to start", width / 2, height * 0.7);
+    //draw greyish black background
+    fill(18);
+    rect(0, 0, width, height);
+    //set text color
+    fill(255);
+    textSize(48);
+    //ensure the display the name in one line
+    textFont('Comic Sans MS');
+    text("Shoot'em Standards", width / 2, height / 2.5);
+    textSize(24);
+    fill(255);
+    text("Click anywhere to start", width / 2, height / 1.5);
+    imageMode(CENTER);
+    //draw the logo on top left of the screen
+    //draw the logo on top left of the screen with some margin
+
+    image(bislogo, width * 0.1, height * 0.2);
+    //add text in front of the logo
+    textSize(32);
+    text("BISKit", width * 0.1, height * 0.25 + bislogo.height / 2);
   }
   else{
-    background(0);
-    imageMode(CENTER);
-    image(bannerImagephone, width / 2, height / 2, width, height);
-
-    textSize(40);
-    fill(0,172,255);
+    //draw the main menu with logo on top left and start button on the center of the screen and game name above the button without image
     textAlign(CENTER, CENTER);
-    text("Click anywhere to start", width / 2, height * 0.7);
+    //draw greyish black background
+    fill(18);
+    rect(0, 0, width, height);
+    //set text color
+    fill(255);
+    textSize(80);
+    //ensure the display the name in one line
+    textFont('Comic Sans MS');
+    text("Shoot'em Standards", width / 2, height / 3);
+    textSize(50);
+    fill(255);
+    text("Click anywhere to start", width / 2, height / 1.5);
+    imageMode(CENTER);
+    //draw the logo on top left of the screen
+    //draw the logo on top left of the screen with some margin
+
+    image(bislogo, width/2, height * 0.1);
+    //add text in front of the logo
+    textSize(50);
+    text("BISKit", width/2, height * 0.2);
   }
 }
 
