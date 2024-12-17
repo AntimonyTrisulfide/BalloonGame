@@ -8,6 +8,7 @@ let standards = []; // List of item2 (standards)
 let usedStandards = []; // Track standards currently in use by balloons
 let availableStandards = []; // Pool of standards not currently used
 let targetProduct; // Current target product (item1)
+let targetAvailable = false; // Flag to check if target product is available
 let targetImage; // Image of the target product (item1)
 let itemImages = {}; // Loaded images for all items
 let balloonSize;
@@ -23,19 +24,18 @@ let frameCounter = 0; // Counter to control frame updates
 let framesPerUpdate = 10; // Number of frames to wait before changing the animation frame
 let sampleSize; // Number of rows to randomly select from the CSV
 let soundWrong, soundPop, soundBackground; // Sound effects
-let gameState = "menu"; // Options: "menu", "playing", "gameOver"
-let bannerImage, bannerImagephone; // Image for the game banner
+let gameState = "menu"; // Options: "menu", "playing", "gameOver", "paused"
 let buttonSize, margin;
+let soundStarted = false;
+let bislogo;
 
 function preload() {
-  // Load the main menu banner image
-  bannerImage = loadImage('assets/banner.png'); // Your custom main menu art
-  bannerImagephone = loadImage('assets/banner_phone.png'); // Your custom main menu art
-  
   // Load sound effects
   soundWrong = loadSound('assets/wrong.wav');
   soundPop = loadSound('assets/pop.wav');
   soundBackground = loadSound('assets/background.mp3');
+  soundPop.setVolume(0.3);
+  bislogo = loadImage('assets/default.png');
   
   // Load CSV file
   let data = loadTable("assets/data.csv", "csv", "header", () => {
@@ -87,8 +87,7 @@ function setup() {
     let frame = popSpriteSheet.get(x, 0, frameWidth, frameHeight); // Crop the frame from the sprite sheet
     popFrames.push(frame); // Store each frame in the array
   }
-  soundBackground.loop(); // Loop background music
-  soundBackground.setVolume(1); // Set volume to 100%
+  
   pickNewTarget(); // Select initial target product
   spawnBalloons(); // Create balloons
   pixelDensity(1.5); // For performance
@@ -141,25 +140,53 @@ function drawCrosshair() {
 
 
 function drawMainMenu() {
-  if (targetImage && screen.width > 600){
-    background(0);
-    imageMode(CENTER);
-    image(bannerImage, width / 2, height / 2, width, height);
-
-    textSize(40);
-    fill(0,172,255);
+  if (screen.width > 600){
+    //draw the main menu with logo on top left and start button on the center of the screen and game name above the button without image
     textAlign(CENTER, CENTER);
-    text("Click anywhere to start", width / 2, height * 0.7);
+    //draw greyish black background
+    fill(18);
+    rect(0, 0, width, height);
+    //set text color
+    fill(255);
+    textSize(48);
+    //ensure the display the name in one line
+    textFont('Comic Sans MS');
+    text("Shoot'em Standards", width / 2, height / 2.5);
+    textSize(24);
+    fill(255);
+    text("Click anywhere to start", width / 2, height / 1.5);
+    imageMode(CENTER);
+    //draw the logo on top left of the screen
+    //draw the logo on top left of the screen with some margin
+
+    image(bislogo, width * 0.1, height * 0.2);
+    //add text in front of the logo
+    textSize(32);
+    text("BISKit", width * 0.1, height * 0.25 + bislogo.height / 2);
   }
   else{
-    background(0);
-    imageMode(CENTER);
-    image(bannerImagephone, width / 2, height / 2, width, height);
-
-    textSize(40);
-    fill(0,172,255);
+    //draw the main menu with logo on top left and start button on the center of the screen and game name above the button without image
     textAlign(CENTER, CENTER);
-    text("Click anywhere to start", width / 2, height * 0.7);
+    //draw greyish black background
+    fill(18);
+    rect(0, 0, width, height);
+    //set text color
+    fill(255);
+    textSize(80);
+    //ensure the display the name in one line
+    textFont('Comic Sans MS');
+    text("Shoot'em Standards", width / 2, height / 3);
+    textSize(50);
+    fill(255);
+    text("Click anywhere to start", width / 2, height / 1.5);
+    imageMode(CENTER);
+    //draw the logo on top left of the screen
+    //draw the logo on top left of the screen with some margin
+
+    image(bislogo, width/2, height * 0.1);
+    //add text in front of the logo
+    textSize(50);
+    text("BISKit", width/2, height * 0.2);
   }
 }
 
@@ -395,6 +422,7 @@ function pickNewTarget() {
   targetProduct = newTargetProduct;
   targetImage = itemImages[targetProduct];
   lastTargetProduct = targetProduct;
+  targetAvailable = true;
 
   fadeAlpha = 0;
   fadingIn = true;
@@ -434,7 +462,12 @@ function pickAndRemoveStandard() {
 function touchStarted() {
   if (gameState === "menu") {
     gameState = "playing";
-    soundBackground.play();
+    if (!soundStarted) { // Start sound only once
+      soundBackground.loop();
+      soundBackground.setVolume(1);
+      soundStarted = true;
+      soundBackground.play();
+    }
     pickNewTarget();
     spawnBalloons();
   } 
@@ -474,11 +507,16 @@ function touchStarted() {
       health = 4; // Reset health
       points = 0; // Reset points
       soundBackground.stop(); // Stop background music
+      soundStarted = false;
     }
   }
   else if (gameState === "gameOver") {
     gameState = "menu";
+    //reset score and health
+    health = 4;
+    points = 0;
     soundBackground.stop(); // Stop background music
+    soundStarted = false;
   }
 }
 
@@ -486,7 +524,12 @@ function touchStarted() {
 function mousePressed() {
   if (gameState === "menu") {
     gameState = "playing";
-    soundBackground.play();
+    if (!soundStarted) { // Start sound only once
+      soundBackground.loop();
+      soundBackground.setVolume(1);
+      soundStarted = true;
+      soundBackground.play();
+    }
     pickNewTarget();
     spawnBalloons();
   } 
@@ -526,11 +569,16 @@ function mousePressed() {
       health = 4; // Reset health
       points = 0; // Reset points
       soundBackground.stop(); // Stop background music
+      soundStarted = false;
     }
   }
   else if (gameState === "gameOver") {
     gameState = "menu";
+    //reset score and health
+    health = 4;
+    points = 0;
     soundBackground.stop(); // Stop background music
+    soundStarted = false;
   }
 }
 
@@ -544,41 +592,44 @@ function popAllBalloons() {
 
 
 function handleInput(x, y) {
-  let hit = false;
-  let correctBalloonClicked = false;
+  if(targetAvailable){
+    let hit = false;
+    let correctBalloonClicked = false;
 
-  for (let i = balloons.length - 1; i >= 0; i--) {
-    let balloon = balloons[i];
-    if (dist(x, y, balloon.x, balloon.y) < clickRadius) {
-      hit = true;
+    for (let i = balloons.length - 1; i >= 0; i--) {
+      let balloon = balloons[i];
+      if (dist(x, y, balloon.x, balloon.y) < clickRadius) {
+        hit = true;
 
-      // Check if the balloon clicked is the correct one
-      if (relationships[targetProduct] === balloon.standard) {
-        correctBalloonClicked = true;
-        points += 10; // Award points for correct balloon
-        soundPop.play(); // Play pop sound
-      } else {
-        points -= 5; // Penalize for wrong balloon
-        health--;
-        soundWrong.play(); // Play wrong sound
+        // Check if the balloon clicked is the correct one
+        if (relationships[targetProduct] === balloon.standard) {
+          correctBalloonClicked = true;
+          points += 10; // Award points for correct balloon
+          soundPop.play(); // Play pop sound
+        } else {
+          points -= 5; // Penalize for wrong balloon
+          health--;
+          soundWrong.play(); // Play wrong sound
+        }
+
+        // Mark the balloon as clicked to trigger the pop animation
+        balloon.clicked = true;
+
+        // If the correct balloon was clicked, pop all balloons display Good Job and then wait 1 sec then pick new target and spawn balloons
+        if (correctBalloonClicked) {
+          targetAvailable = false;
+          popAllBalloons();
+          setTimeout(() => {
+            pickNewTarget();
+            spawnBalloons();
+          }, 1000);
+        } else {
+          // If the wrong balloon was clicked, replace the popped balloon
+          replaceBalloon(i);
+        }
+
+        break;
       }
-
-      // Mark the balloon as clicked to trigger the pop animation
-      balloon.clicked = true;
-
-      // If the correct balloon was clicked, pop all balloons display Good Job and then wait 1 sec then pick new target and spawn balloons
-      if (correctBalloonClicked) {
-        popAllBalloons();
-        setTimeout(() => {
-          pickNewTarget();
-          spawnBalloons();
-        }, 1000);
-      } else {
-        // If the wrong balloon was clicked, replace the popped balloon
-        replaceBalloon(i);
-      }
-
-      break;
     }
   }
 }
