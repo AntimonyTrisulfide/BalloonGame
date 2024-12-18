@@ -373,6 +373,8 @@ function displayGameOver() {
   //display the final score
   textSize(40);
   text(`Final Score: ${points}`, width / 2, height *0.65 + 100);
+  lastsessionscore = points;
+  console.log(lastsessionscore);
 }
 
 function spawnBalloons() {
@@ -515,8 +517,6 @@ function touchStarted() {
   else if (gameState === "gameOver") {
     gameState = "menu";
     //reset score and health
-    lastsessionscore = points;
-    console.log(lastsessionscore);
     health = 4;
     points = 0;
     soundBackground.stop(); // Stop background music
@@ -581,8 +581,6 @@ function mousePressed() {
   else if (gameState === "gameOver") {
     gameState = "menu";
     //reset score and health
-    lastsessionscore = points;
-    console.log(lastsessionscore);
     health = 4;
     points = 0;
     soundBackground.stop(); // Stop background music
