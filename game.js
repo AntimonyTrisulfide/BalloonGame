@@ -28,6 +28,7 @@ let gameState = "menu"; // Options: "menu", "playing", "gameOver", "paused"
 let buttonSize, margin;
 let soundStarted = false;
 let bislogo;
+let lastsessionscore = 0;
 
 function preload() {
   // Load sound effects
@@ -450,7 +451,6 @@ function pickNewTarget() {
 
 function pickAndRemoveStandard() {
   if (availableStandards.length === 0) {
-    console.error("No available standards left to pick!");
     return null;
   }
   let randomIndex = floor(random(availableStandards.length));
@@ -504,6 +504,8 @@ function touchStarted() {
       mouseY < height / 2 + height * 0.1 + height * 0.1
     ) {
       gameState = "menu";
+      lastsessionscore = points;
+      console.log(lastsessionscore);
       health = 4; // Reset health
       points = 0; // Reset points
       soundBackground.stop(); // Stop background music
@@ -513,6 +515,8 @@ function touchStarted() {
   else if (gameState === "gameOver") {
     gameState = "menu";
     //reset score and health
+    lastsessionscore = points;
+    console.log(lastsessionscore);
     health = 4;
     points = 0;
     soundBackground.stop(); // Stop background music
@@ -566,6 +570,8 @@ function mousePressed() {
       mouseY < height / 2 + height * 0.1 + height * 0.1
     ) {
       gameState = "menu";
+      lastsessionscore = points;
+      console.log(lastsessionscore);
       health = 4; // Reset health
       points = 0; // Reset points
       soundBackground.stop(); // Stop background music
@@ -575,6 +581,8 @@ function mousePressed() {
   else if (gameState === "gameOver") {
     gameState = "menu";
     //reset score and health
+    lastsessionscore = points;
+    console.log(lastsessionscore);
     health = 4;
     points = 0;
     soundBackground.stop(); // Stop background music
@@ -644,7 +652,6 @@ class Balloon {
     this.clicked = false;
     this.popAnimationComplete = false; // To track animation completion
     this.speed = random(2, 6) / window.devicePixelRatio;
-    console.log(window.devicePixelRatio);
     if (window.devicePixelRatio > 2) {
       this.speed *= 4; // Increase speed for high DPI screens or small screens
     }
