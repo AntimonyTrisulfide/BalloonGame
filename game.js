@@ -30,8 +30,6 @@ let soundStarted = false;
 let bislogo;
 let lastsessionscore = 0;
 
-let assetsLoaded = false;
-
 function preload() {
   // Load sound effects
   soundWrong = loadSound('assets/wrong.wav');
@@ -44,7 +42,7 @@ function preload() {
   let data = loadTable("assets/data.csv", "csv", "header", () => {
     let rowCount = data.getRowCount();
     let selectedRows = []; // To store randomly selected rows
-    sampleSize = 20; // Number of rows to randomly select (adjust as needed)
+    sampleSize = 40; // Number of rows to randomly select (adjust as needed)
 
     // Generate random indices to pick rows
     while (selectedRows.length < sampleSize) {
@@ -77,10 +75,17 @@ function preload() {
 
   // Load the sprite sheet for the balloon pop animation
   popSpriteSheet = loadImage('assets/pop_spritesheet.png'); // Replace with your sprite sheet path
+}
 
-  setTimeout(() => {
-    assetsLoaded = true;
-  }, 1000);
+function assetLoaded() {
+  // Check if all assets are loaded using isLoaded function
+  if (isLoaded(itemImages) && popSpriteSheet) {
+    hideLoadingScreen();
+  }
+}
+
+function hideLoadingScreen() {
+  document.getElementById("p5_loading").style.display = "none";
 }
 
 function setup() {
@@ -99,9 +104,6 @@ function setup() {
   spawnBalloons(); // Create balloons
   pixelDensity(1.5); // For performance
   frameRate(60);
-  if (assetsLoaded) {
-    document.getElementById("p5_loading").style.display = "none";
-  }
 }
 
 function draw() {
