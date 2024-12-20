@@ -24,7 +24,7 @@ let frameCounter = 0; // Counter to control frame updates
 let framesPerUpdate = 10; // Number of frames to wait before changing the animation frame
 let sampleSize; // Number of rows to randomly select from the CSV
 let soundWrong, soundPop, soundBackground; // Sound effects
-let gameState = "menu"; // Options: "menu", "playing", "gameOver", "paused"
+let gameState = "loading"; // Options: "menu", "playing", "gameOver", "paused"
 let buttonSize, margin;
 let soundStarted = false;
 let bislogo;
@@ -32,6 +32,7 @@ let lastsessionscore = 0;
 
 function preload() {
   // Load sound effects
+  gameState = "loading";
   soundWrong = loadSound('assets/wrong.wav');
   soundPop = loadSound('assets/pop.wav');
   soundBackground = loadSound('assets/background.mp3');
@@ -79,7 +80,7 @@ function preload() {
 
 function assetLoaded() {
   // Check if all assets are loaded using isLoaded function
-  if (isLoaded(itemImages) && popSpriteSheet) {
+  if (isLoaded(itemImages) && popSpriteSheet && soundWrong && soundPop && soundBackground && bislogo && gameState === "loading") { 
     hideLoadingScreen();
   }
 }
@@ -92,18 +93,17 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   balloonSize = min(width, height) * 0.25; // Balloon size
   clickRadius = balloonSize * 0.6; // Radius for clicking balloons
-
   // Slice the sprite sheet into individual frames (now 320x320)
   for (let i = 0; i < totalFrames; i++) {
     let x = i * frameWidth; // Horizontal offset for each frame
     let frame = popSpriteSheet.get(x, 0, frameWidth, frameHeight); // Crop the frame from the sprite sheet
     popFrames.push(frame); // Store each frame in the array
   }
-  
   pickNewTarget(); // Select initial target product
   spawnBalloons(); // Create balloons
   pixelDensity(1.5); // For performance
   frameRate(60);
+  gameState = "menu";
 }
 
 function draw() {
@@ -299,8 +299,8 @@ function drawHUD() {
   fill(0);
   noStroke();
   rect(0, 0, width, height * 0.05); //top rectangle
-  rect(0, 0, width * 0.05, height); //left rectangle
-  rect(width - width * 0.05, 0, width * 0.05, height); //right rectangle
+  // rect(0, 0, width * 0.05, height); //left rectangle
+  // rect(width - width * 0.05, 0, width * 0.05, height); //right rectangle
   rect(0, height - height * 0.05, width, height * 0.05); //bottom rectangle
 
   if (targetImage && screen.width > 600) {
@@ -320,6 +320,9 @@ function drawHUD() {
   textFont('Comic Sans MS');
   //make text size dependent on both width and height
   textSize(max(width*0.03,height*0.03) - 10);
+  if(screen.width < 600){
+    textSize(2*(max(width*0.03,height*0.03) - 10));
+  }
   textAlign(CENTER, CENTER);
   text(`Points: ${points}`, width * 0.2, height * 0.03);
   text(`Tries Left: ${health}`, width * 0.8, height * 0.03);
@@ -331,19 +334,30 @@ function drawHUD() {
 function drawPauseButton() {
   if(screen.width < 600){
     buttonSize = width * 0.10;
+    margin = 10;
+    fill(255, 0, 0);
+    stroke(255);
+    strokeWeight(2);
+    //top center of the screen without margin
+    rect(width/2 - buttonSize/2, margin, buttonSize, buttonSize, 10);
+    fill(255);
+    textSize(12);
+    textAlign(CENTER, CENTER);
+    text("||", width/2, margin + buttonSize / 2);
   }
   else{
     buttonSize = width * 0.05;
+    margin = 10;
+    fill(255, 0, 0);
+    stroke(255);
+    strokeWeight(2);
+    rect(width/2 - buttonSize/2 - margin, margin, buttonSize, buttonSize, 10);
+    fill(255);
+    textSize(24);
+    textAlign(CENTER, CENTER);
+    text("||", width/2 - margin, margin + buttonSize / 2);
   }
-  margin = 10;
-  fill(255, 0, 0);
-  stroke(255);
-  strokeWeight(2);
-  rect(width/2 - buttonSize/2 - margin, margin, buttonSize, buttonSize, 10);
-  fill(255);
-  textSize(24);
-  textAlign(CENTER, CENTER);
-  text("||", width/2 - margin, margin + buttonSize / 2);
+  
 }
 
 function drawPauseMenu() {
@@ -378,10 +392,11 @@ function drawPauseMenu() {
 
 
 function displayGameOver() {
+  noStroke();
   fill(0, 200);
   rect(0, 0, width, height);
   textAlign(CENTER, CENTER);
-  fill(255, 0, 0);
+  fill(255);
   textSize(64);
 
   if(screen.width < 600){
@@ -523,7 +538,10 @@ function touchStarted() {
     else{
       handleInput(mouseX, mouseY);
     }     
-  } 
+  }
+  else if (gameState === "loading") {
+    // Do nothing while loading
+  }
   else if (gameState === "paused") {
     // Resume button logic
     if (
@@ -588,6 +606,9 @@ function mousePressed() {
       handleInput(mouseX, mouseY);
     }    
   } 
+  else if (gameState === "loading") {
+    // Do nothing while loading
+  }
   else if (gameState === "paused") {
     // Resume button logic
     if (
