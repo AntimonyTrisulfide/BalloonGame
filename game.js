@@ -92,6 +92,7 @@ function setup() {
   pickNewTarget(); // Select initial target product
   spawnBalloons(); // Create balloons
   pixelDensity(1.5); // For performance
+  frameRate(60);
 }
 
 function draw() {
@@ -173,20 +174,20 @@ function drawMainMenu() {
     rect(0, 0, width, height);
     //set text color
     fill(255);
-    textSize(80);
+    textSize(24);
     //ensure the display the name in one line
     textFont('Comic Sans MS');
     text("Shoot'em Standards", width / 2, height / 3);
-    textSize(50);
+    textSize(16);
     fill(255);
     text("Click anywhere to start", width / 2, height / 1.5);
     imageMode(CENTER);
     //draw the logo on top left of the screen
     //draw the logo on top left of the screen with some margin
 
-    image(bislogo, width/2, height * 0.1);
+    image(bislogo, width/2, height * 0.1, width * 0.3, width * 0.3);
     //add text in front of the logo
-    textSize(50);
+    textSize(16);
     text("BISKit", width/2, height * 0.2);
   }
 }
@@ -338,7 +339,7 @@ function drawPauseMenu() {
   rect(0, 0, width, height);
 
   fill(255);
-  textSize(48);
+  textSize(36);
   textAlign(CENTER, CENTER);
   text("Game Paused", width / 2, height / 3);
 
@@ -355,6 +356,9 @@ function drawPauseMenu() {
 
   fill(0);
   textSize(24);
+  if(screen.width < 600){
+    textSize(10);
+  }
   textAlign(CENTER, CENTER);
   text("Resume", width / 2, height / 2 + height * 0.05);
   text("Back to Menu", width / 2, height / 2 + height * 0.15);
@@ -367,12 +371,33 @@ function displayGameOver() {
   textAlign(CENTER, CENTER);
   fill(255, 0, 0);
   textSize(64);
-  text("Game Over", width / 2, height / 2);
+
+  if(screen.width < 600){
+    textSize(24);
+    text("Game Over", width / 2, height / 3);
+  }
+  else{
+    text("Game Over", width / 2, height / 2);
+  }
+
   textSize(24);
-  text("Click anywhere to return to the main menu", width / 2, height * 0.6);
+  if(screen.width < 600){
+    textSize(16);
+    text("Click anywhere to return to the main menu", width / 2, height / 2.6);
+  }
+  else{
+    text("Click anywhere to return to the main menu", width / 2, height * 0.6);
+  }
+  
   //display the final score
   textSize(40);
-  text(`Final Score: ${points}`, width / 2, height *0.65 + 100);
+  if(screen.width < 600){
+    textSize(20);
+    text(`Final Score: ${points}`, width / 2, height / 2.5 + 100);
+  }
+  else{
+    text(`Final Score: ${points}`, width / 2, height * 0.65 + 100);
+  }
   lastsessionscore = points;
   console.log(lastsessionscore);
 }
@@ -649,10 +674,9 @@ class Balloon {
     this.size = balloonSize;
     this.clicked = false;
     this.popAnimationComplete = false; // To track animation completion
-    this.speed = random(2, 6) / window.devicePixelRatio;
-    if (window.devicePixelRatio > 2) {
-      this.speed *= 4; // Increase speed for high DPI screens or small screens
-    }
+    this.speed = (random(0.1, 0.5) * deltaTime)/window.devicePixelRatio; // Rising speed
+    //pixel density of the window
+    console.log(window.devicePixelRatio);
     this.angle = 0; // For wobble effect
   }
 
