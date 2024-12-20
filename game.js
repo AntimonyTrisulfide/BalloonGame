@@ -30,6 +30,8 @@ let soundStarted = false;
 let bislogo;
 let lastsessionscore = 0;
 
+let assetsLoaded = false;
+
 function preload() {
   // Load sound effects
   soundWrong = loadSound('assets/wrong.wav');
@@ -42,7 +44,7 @@ function preload() {
   let data = loadTable("assets/data.csv", "csv", "header", () => {
     let rowCount = data.getRowCount();
     let selectedRows = []; // To store randomly selected rows
-    sampleSize = 40; // Number of rows to randomly select (adjust as needed)
+    sampleSize = 20; // Number of rows to randomly select (adjust as needed)
 
     // Generate random indices to pick rows
     while (selectedRows.length < sampleSize) {
@@ -75,6 +77,10 @@ function preload() {
 
   // Load the sprite sheet for the balloon pop animation
   popSpriteSheet = loadImage('assets/pop_spritesheet.png'); // Replace with your sprite sheet path
+
+  setTimeout(() => {
+    assetsLoaded = true;
+  }, 1000);
 }
 
 function setup() {
@@ -93,6 +99,9 @@ function setup() {
   spawnBalloons(); // Create balloons
   pixelDensity(1.5); // For performance
   frameRate(60);
+  if (assetsLoaded) {
+    document.getElementById("p5_loading").style.display = "none";
+  }
 }
 
 function draw() {
@@ -113,8 +122,9 @@ function draw() {
     if (health <= 0) {
       gameState = "gameOver";
     }
-
-    drawCrosshair();
+    if(screen.width > 600){
+      drawCrosshair();
+    }
   } 
   else if (gameState === "paused") {
     drawPauseMenu();
@@ -674,7 +684,7 @@ class Balloon {
     this.size = balloonSize;
     this.clicked = false;
     this.popAnimationComplete = false; // To track animation completion
-    this.speed = (random(0.1, 0.5) * deltaTime)/window.devicePixelRatio; // Rising speed
+    this.speed = (random(0.1, 0.3) * deltaTime)/window.devicePixelRatio; // Rising speed
     //pixel density of the window
     console.log(window.devicePixelRatio);
     this.angle = 0; // For wobble effect
