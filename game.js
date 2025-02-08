@@ -51,7 +51,7 @@ function preload() {
   let data = loadTable("assets/data.csv", "csv", "header", () => {
     let rowCount = data.getRowCount();
     let selectedRows = [];
-    sampleSize = 4;
+    sampleSize = 20;
 
     while (selectedRows.length < sampleSize) {
       let randomIndex = floor(random(rowCount));
