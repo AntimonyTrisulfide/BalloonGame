@@ -485,6 +485,10 @@ function displayGameOver() {
     text(`Final Score: ${points}`, width / 2, height * 0.65 + 100);
   }
   lastsessionscore = points;
+  window.parent.postMessage({
+    type: 'SUBMIT_SCORE',
+    score: lastsessionscore
+  }, '*');
   console.log(lastsessionscore);
 }
 
@@ -734,6 +738,10 @@ function touchStarted() {
       gameState = "menu";
       floatingTexts = []; // Clear floating texts when returning to menu
       lastsessionscore = points;
+      window.parent.postMessage({
+        type: 'SUBMIT_SCORE',
+        score: lastsessionscore
+      }, '*');
       console.log(lastsessionscore);
       health = 4; // Reset health
       points = 0; // Reset points
@@ -821,6 +829,10 @@ function mousePressed() {
       gameState = "menu";
       floatingTexts = []; // Clear floating texts when returning to menu
       lastsessionscore = points;
+      window.parent.postMessage({
+        type: 'SUBMIT_SCORE',
+        score: lastsessionscore
+      }, '*');
       console.log(lastsessionscore);
       health = 4; // Reset health
       points = 0; // Reset points
